@@ -32,7 +32,7 @@ time he began to follow Bob but before *and* after. Following is retroactive so 
 
 Another notable point from the example scenarios is that users are created lazily upon posting a message.
 
-A non-functional requirement I added myself is that it would be mad to support the messaging use-cases in a way that did not
+The problem description states that messages can/should be stored in memory. My solution uses a memory store, however, a persistent store in a pluggable fashion. A non-functional requirement I added myself is that it would be mad to support the messaging use-cases in a way that did not
 scale or support persistence because, even if this is a demo, any real messaging system has large numbers of persisted messages.
 
 For these reasons I chose to use (a mockup of) the [Redis] (http://redis.io/) key/value store. This choice has the following features
