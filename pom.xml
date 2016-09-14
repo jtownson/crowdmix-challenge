@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.jtownson</groupId>
-    <artifactId>crowdmix-challenge</artifactId>
-    <name>crowdmix-challenge</name>
-    <url>http://github.com/jtownson/crowdmix-challenge</url>
+    <artifactId>jparsec-demo</artifactId>
+    <name>jparsec demo</name>
+    <url>http://bitbucket.org/jtownson/jparsec-demo</url>
     <version>HEAD</version>
     <packaging>jar</packaging>
 

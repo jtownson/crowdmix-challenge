@@ -1,68 +1,65 @@
-# Jeremy Townson's Crowdmix challenge - notes
+# Jparsec demo
 
 ## Contents
 * Running the application
-* Parsing user commands
-* Message handling
-* Application flow
-* Dependency injection
-* Testing
+* App description
+* Interesting libraries used
 
 ## Running the application
 
 The application depends on JDK 8 and Maven 3.
 
-    $ git clone https://github.com/jtownson/crowdmix-challenge.git
-    $ cd crowdmix-challenge
+    $ git clone https://github.com/jtownson/jparsec-demo.git
+    $ cd jparsec-demo
     $ mvn clean package
-    $ mvn exec:java -Dexec.mainClass="net.jtownson.crowdmix_challenge.ConsoleApplication" 
+    $ mvn exec:java -Dexec.mainClass="net.jtownson.jparsec.ConsoleApplication" 
 
 This should drop you into a prompt where you can enter commands. CTRL-C will exit.
 
-## Parsing user commands
-
-I have used a great library, called [JParsec] (https://github.com/jparsec/jparsec) which is simple enough to 
-make command processing easy and general enough to accommodate additional commands and edge cases. 
+## App description
  
-## Message handling
-
-The outstanding feature/requirement of the example scenarios is that, when Charlie follows Bob, Charlie's wall includes Bob's posts 
-from *before* the time he/she began to follow Bob. In other words, Charlie is not subscribing to Bob's posts from after the
-time he began to follow Bob but before *and* after. Following is retroactive so this is not a traditional pub/sub use-case.
-
-Another notable point from the example scenarios is that users are created lazily upon posting a message.
-
-The problem description states that messages can/should be stored in memory. My solution uses a memory store, however, a persistent store in a pluggable fashion. A non-functional requirement I added myself is that it would be mad to support the messaging use-cases in a way that did not
-scale or support persistence because, even if this is a demo, any real messaging system has large numbers of persisted messages.
-
-For these reasons I chose to use (a mockup of) the [Redis] (http://redis.io/) key/value store. This choice has the following features
-
-1. Scalability and persistence for free by wiring a real redis client (pointing to a real Redis server) in place of the redis test stub.
-2. Simpler service class implementation. The app messaging service has no state of its own to manage but just barks commands at Redis.
-3. There is a [mock Redis] (https://github.com/50onRed/mock-jedis) on github to support demo and test scenarios.
-4. Redis adds data lazily, in line with the requirement to create users lazily.
-
-## Application flow
-
-I used functional programming techniques to model the application as
-a pipeline of user input --> parsed command objects --> processing response --> user output. 
-
-The functional java library, [totallylazy] (http://http://totallylazy.com/) makes the implementation neat.
+Implements a console-based social networking application (similar to Twitter) satisfying the scenarios below.
+ Scenarios
+ Posting: Alice can publish messages to a personal timeline
  
-Would I have done this in production code instead of a conventional while loop? Probably not. This is a software craftmanship
-challenge and the pipeline code is very pretty.
+ > Alice -> I love the weather today
+ > Bob -> Damn! We lost!
+ > Bob -> Good game though.
+ 
+ Reading: Bob can view Alice’s timeline
+ 
+ > Alice
+ I love the weather today (5 minutes ago)
+ > Bob
+ Good game though. (1 minute ago)
+ Damn! We lost! (2 minutes ago)
+ 
+ Following: Charlie can subscribe to Alice’s and Bob’s timelines, and view an aggregated list of all subscriptions
+ 
+ > Charlie -> I'm in New York today! Anyone wants to have a coffee?
+ > Charlie follows Alice
+ > Charlie wall
+ Charlie - I'm in New York today! Anyone wants to have a coffee? (2 seconds ago)
+ Alice - I love the weather today (5 minutes ago)
+ 
+ > Charlie follows Bob
+ > Charlie wall
+ Charlie - I'm in New York today! Anyone wants to have a coffee? (15 seconds ago)
+ Bob - Good game though. (1 minute ago)
+ Bob - Damn! We lost! (2 minutes ago)
+ Alice - I love the weather today (5 minutes ago)
+ Details
+ 
+ Uses the console for input and output
+ Users submit commands to the application. There are four commands. “posting”, “reading”, etc. are not part of the commands; commands always start with the user’s name.
+         posting: <user name> -> <message>
+         reading: <user name>
+         following: <user name> follows <another user>
+         wall: <user name> wall
+ Currently no handling of invalid commands. One assume the user will always type the correct commands. 
 
-## Dependency injection
+## Interesting libraries used
 
-Wiring of application dependencies is handled by net.jtownson.crowdmix_challenge.Context.
-
-## Testing
-
-There is unit test coverage for
-
-1. user input parsing (net.jtownson.crowdmix_challenge.parsing.ParserFactoryTest)
-2. message handling (net.jtownson.crowdmix_challenge.messaging.services.MessagingServiceTest)
-3. user output (net.jtownson.crowdmix_challenge.output.OutputFormattingTest)
-
-Finally, there is an acceptance test to cover the scenarios in the challenge description 
-(net.jtownson.crowdmix_challenge.acceptance.AcceptanceTest)
+jparsec (a port of Haskell's parsec parser combinator library)
+totallylazy (a java fp library)
+mock jedis (a redis stub)
